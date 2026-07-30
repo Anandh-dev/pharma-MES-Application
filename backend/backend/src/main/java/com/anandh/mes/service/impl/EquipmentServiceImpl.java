@@ -1,4 +1,4 @@
-package com.anandh.mes.service;
+package com.anandh.mes.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,8 +9,12 @@ import com.anandh.mes.dto.EquipmentDTO;
 import com.anandh.mes.entity.Equipment;
 import com.anandh.mes.exception.ResourceNotFoundException;
 import com.anandh.mes.repository.EquipmentRepository;
+import com.anandh.mes.service.EquipmentService;
 
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +22,13 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(EquipmentServiceImpl.class);
+
     @Override
     public EquipmentDTO createEquipment(EquipmentDTO dto) {
+
+        logger.info("Creating Equipment : {}", dto.getEquipmentCode());
 
         Equipment equipment = Equipment.builder()
                 .equipmentCode(dto.getEquipmentCode())
@@ -33,11 +42,15 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         Equipment saved = equipmentRepository.save(equipment);
 
+        logger.info("Equipment Created Successfully with ID : {}", saved.getEquipmentId());
+
         return mapToDTO(saved);
     }
 
     @Override
     public List<EquipmentDTO> getAllEquipment() {
+
+        logger.info("Fetching All Equipment");
 
         return equipmentRepository.findAll()
                 .stream()
@@ -49,9 +62,14 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public EquipmentDTO getEquipmentById(Long id) {
 
+        logger.info("Fetching Equipment with ID : {}", id);
+
         Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Equipment not found with id : " + id));
+                .orElseThrow(() -> {
+                    logger.error("Equipment not found with ID : {}", id);
+                    return new ResourceNotFoundException(
+                            "Equipment not found with id : " + id);
+                });
 
         return mapToDTO(equipment);
 
@@ -60,9 +78,14 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public EquipmentDTO updateEquipment(Long id, EquipmentDTO dto) {
 
+        logger.info("Updating Equipment with ID : {}", id);
+
         Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Equipment not found with id : " + id));
+                .orElseThrow(() -> {
+                    logger.error("Equipment not found with ID : {}", id);
+                    return new ResourceNotFoundException(
+                            "Equipment not found with id : " + id);
+                });
 
         equipment.setEquipmentCode(dto.getEquipmentCode());
         equipment.setEquipmentName(dto.getEquipmentName());
@@ -74,6 +97,8 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         Equipment updated = equipmentRepository.save(equipment);
 
+        logger.info("Equipment Updated Successfully");
+
         return mapToDTO(updated);
 
     }
@@ -81,11 +106,18 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public void deleteEquipment(Long id) {
 
+        logger.info("Deleting Equipment with ID : {}", id);
+
         Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Equipment not found with id : " + id));
+                .orElseThrow(() -> {
+                    logger.error("Equipment not found with ID : {}", id);
+                    return new ResourceNotFoundException(
+                            "Equipment not found with id : " + id);
+                });
 
         equipmentRepository.delete(equipment);
+
+        logger.info("Equipment Deleted Successfully");
 
     }
 

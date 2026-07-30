@@ -31,6 +31,8 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> response = new HashMap<>();
 
+        ex.printStackTrace();   // <-- Add this line
+        
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Internal Server Error");
