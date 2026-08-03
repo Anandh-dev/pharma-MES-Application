@@ -4,16 +4,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import com.anandh.mes.dto.AuthResponse;
+import com.anandh.mes.dto.JwtAuthResponse;
 import com.anandh.mes.dto.LoginRequest;
 import com.anandh.mes.dto.UserDTO;
+import com.anandh.mes.security.JwtService;
 import com.anandh.mes.service.UserService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,28 +23,22 @@ import org.springframework.security.core.Authentication;
 public class AuthController {
 
     private final UserService userService;
-
     private final AuthenticationManager authenticationManager;
-
-    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(
-            @RequestBody UserDTO dto) {
+    public ResponseEntity<String> register(@RequestBody UserDTO dto) {
 
-               userService.registerUser(dto);
+        userService.registerUser(dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(AuthResponse.builder()
-                        .message("User Registered Successfully")
-                        .build());
-
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("User Registered Successfully");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-
-        System.out.println("Step 1");
+    public ResponseEntity<JwtAuthResponse> login(
+            @RequestBody LoginRequest request) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -50,13 +46,25 @@ public class AuthController {
                                 request.getUsername(),
                                 request.getPassword()));
 
-        System.out.println("Step 2");
+        UserDetails user =
+                (UserDetails) authentication.getPrincipal();
 
-        System.out.println(authentication);
+        String token = jwtService.generateToken(user);
 
-        return ResponseEntity.ok(
-                AuthResponse.builder()
-                        .message("Login Successful")
-                        .build());
+        String role = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("");
+
+        JwtAuthResponse response =
+                JwtAuthResponse.builder()
+                        .accessToken(token)
+                        .tokenType("Bearer")
+                        .username(user.getUsername())
+                        .role(role)
+                        .build();
+
+        return ResponseEntity.ok(response);
     }
 }
