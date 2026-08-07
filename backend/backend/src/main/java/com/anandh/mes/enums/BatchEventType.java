@@ -1,0 +1,23 @@
+package com.anandh.mes.enums;
+
+public enum BatchEventType {
+
+    BATCH_CREATED,
+
+    BATCH_STARTED,
+
+    STEP_STARTED,
+
+    STEP_COMPLETED,
+
+    MATERIAL_CONSUMED,
+
+    EQUIPMENT_ASSIGNED,
+
+    EQUIPMENT_RELEASED,
+
+    PARAMETER_RECORDED,
+
+    BATCH_COMPLETED
+
+}
