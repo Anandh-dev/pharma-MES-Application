@@ -14,6 +14,8 @@ public enum BatchStatus {
 
     CLOSED,
 
-    CANCELLED
+    CANCELLED, 
+    
+    FAILED
 
 }
