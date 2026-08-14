@@ -1,5 +1,4 @@
 import {
-    Box,
     Divider,
     Drawer,
     List,
@@ -19,15 +18,24 @@ import BuildIcon from "@mui/icons-material/Build";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
+import { useNavigate } from "react-router-dom";
+
 const drawerWidth = 240;
 
 function Sidebar() {
+
+    const navigate = useNavigate();
 
     const menuItems = [
         {
             label: "Dashboard",
             icon: <DashboardIcon />,
             path: "/dashboard"
+        },
+        {
+            label: "Batches",
+            icon: <InventoryIcon />,
+            path: "/batches"
         },
         {
             label: "Production",
@@ -98,6 +106,7 @@ function Sidebar() {
 
                     <ListItemButton
                         key={item.label}
+                        onClick={() => navigate(item.path)}
                     >
 
                         <ListItemIcon>
